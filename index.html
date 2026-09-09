@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A cinematic interactive birthday surprise for Puja Shrestha turning 21.">
+    <title>Happy 21st Birthday, Puja ❤️</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Sacramento&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- GSAP for Cinematic Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+
+    <!-- Background Canvas for Stars, Ambient Light Rays & Confetti -->
+    <canvas id="bgCanvas"></canvas>
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Background Ambient Glow Effects -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <!-- Floating Audio Control Widget -->
+    <div id="audioWidget" class="audio-widget hidden">
+        <button id="musicToggleBtn" class="music-btn" aria-label="Toggle Music">
+            <span class="music-icon" id="musicIcon">🎵</span>
+            <div class="visualizer-bars" id="visualizer">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </button>
+        <div class="audio-controls-popup">
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.7" aria-label="Volume">
+            <button id="muteBtn" class="mute-btn" aria-label="Mute/Unmute">🔊</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="appContainer">
+
+        <!-- SCENE 1: OPENING CINEMATIC SCREEN -->
+        <section id="scene-opening" class="scene active-scene">
+            <div class="scene-content text-center">
+                <p id="openingLine1" class="cinematic-subtitle fade-text">A little surprise is waiting for you...</p>
+                <p id="openingLine2" class="cinematic-subtitle fade-text hidden-element">But first, I need to know something.</p>
+                <div id="openingBtnWrapper" class="btn-wrapper hidden-element">
+                    <button id="unlockStartBtn" class="glow-btn">
+                        Unlock the surprise <span class="arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 2: BIRTHDAY LOCK SCREEN -->
+        <section id="scene-lock" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <div class="lock-wrapper">
+                    <div id="lockIcon" class="lock-icon">🔒</div>
+                </div>
+                <h2 class="scene-heading">Before we begin...</h2>
+                <p class="scene-subtext">When were you born?</p>
+
+                <form id="lockForm" class="date-input-form" onsubmit="return false;">
+                    <div class="date-inputs">
+                        <div class="input-group">
+                            <input type="text" id="dateMonth" placeholder="MM" maxlength="2" inputmode="numeric" required aria-label="Month">
+                            <span class="input-label">Month</span>
+                        </div>
+                        <span class="date-separator">/</span>
+                        <div class="input-group">
+                            <input type="text" id="dateDay" placeholder="DD" maxlength="2" inputmode="numeric" required aria-label="Day">
+                            <span class="input-label">Day</span>
+                        </div>
+                        <span class="date-separator">/</span>
+                        <div class="input-group">
+                            <input type="text" id="dateYear" placeholder="YYYY" maxlength="4" inputmode="numeric" required aria-label="Year">
+                            <span class="input-label">Year</span>
+                        </div>
+                    </div>
+                    <button type="submit" id="unlockSubmitBtn" class="glow-btn small-glow-btn">Unlock 🔓</button>
+                </form>
+
+                <p id="lockFeedback" class="lock-feedback-msg"></p>
+            </div>
+        </section>
+
+        <!-- SCENE 3: BIRTHDAY INTRO GREETING -->
+        <section id="scene-intro" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <p id="introSub1" class="intro-sub-line fade-text">Today is a little different...</p>
+                <h1 id="introMainTitle" class="main-birthday-title glow-heading fade-text hidden-element">Happy Birthday, Puja ❤️</h1>
+                <h3 id="introSub2" class="tagline-heading fade-text hidden-element">21 looks beautiful on you.</h3>
+                <div id="introContinueWrapper" class="btn-wrapper hidden-element">
+                    <button id="introNextBtn" class="glow-btn">See Your Cake 🎂</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 4: BIRTHDAY CAKE & CANDLE BLOWING -->
+        <section id="scene-cake" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <h2 id="cakeInstructionTitle" class="scene-heading">Make a wish, Puja...</h2>
+                <p id="cakeInstructionSub" class="scene-subtext">But first, blow out the candles. 🎂</p>
+
+                <!-- Dynamic Cake Container -->
+                <div id="cakeContainer" class="cake-container">
+                    <div class="cake-plate"></div>
+                    <div class="cake-tier cake-bottom">
+                        <div class="cake-decorations">
+                            <span class="pearl"></span><span class="pearl"></span><span class="pearl"></span><span class="pearl"></span><span class="pearl"></span>
+                        </div>
+                    </div>
+                    <div class="cake-tier cake-top">
+                        <div class="cake-icing"></div>
+                        <!-- 21 Candles generated dynamically -->
+                        <div id="candlesWrapper" class="candles-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Big 21 Light Up Banner (Revealed after candles blown) -->
+                <div id="glowing21Banner" class="glowing-21-banner hidden-element">
+                    <span class="big-21-text">21</span>
+                    <p class="welcome-21-text">Welcome to 21, Puja. ❤️</p>
+                </div>
+
+                <!-- Blow Controls / Feedback -->
+                <div class="blow-controls-wrapper">
+                    <button id="micBlowBtn" class="mic-btn glow-btn">
+                        <span class="mic-icon">🎤</span> Enable Mic & Blow Candles
+                    </button>
+                    <button id="tapBlowBtn" class="tap-blow-btn glow-btn alt-btn">
+                        Tap to blow the candles 🎂
+                    </button>
+                    <p id="micStatusText" class="mic-status-text"></p>
+                </div>
+
+                <div id="cakeNextWrapper" class="btn-wrapper hidden-element margin-top-md">
+                    <button id="cakeNextBtn" class="glow-btn">Discover Memories 🎈</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 5: BALLOON PHOTO REVEAL -->
+        <section id="scene-balloons" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <div class="balloon-header">
+                    <h2 class="scene-heading">Pop the Balloons</h2>
+                    <p class="scene-subtext">14 floating balloons, 14 special memories hidden inside. Tap any balloon to pop it!</p>
+                    <p id="balloonCountText" class="balloon-counter">Unlocked: <span id="poppedCount">0</span> / 14 &nbsp;•&nbsp; Remaining: <span id="remainingCount">14</span> balloons</p>
+                </div>
+
+                <!-- Floating Balloons Container -->
+                <div id="balloonsStage" class="balloons-stage"></div>
+
+                <!-- Single Revealed Photo Modal / Overlay during balloon pop -->
+                <div id="balloonPhotoModal" class="balloon-photo-modal hidden-element">
+                    <div class="balloon-photo-card polaroid-card">
+                        <div class="polaroid-img-wrapper">
+                            <img id="balloonModalImg" src="" alt="Revealed Memory">
+                        </div>
+                        <p id="balloonModalCaption" class="polaroid-caption"></p>
+                        <div class="modal-btn-group">
+                            <button id="popNextBalloonBtn" class="glow-btn small-btn">Blast Next Balloon 💥</button>
+                            <button id="closeBalloonPhotoBtn" class="glow-btn small-btn alt-btn">View Remaining Balloons 🎈</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="balloonsNextWrapper" class="btn-wrapper hidden-element margin-top-md">
+                    <button id="balloonsNextBtn" class="glow-btn">Open Memory Gallery 🖼️</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 6: MEMORY GALLERY -->
+        <section id="scene-gallery" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <h1 class="scene-title-lg">A Few Memories...</h1>
+                <p class="scene-subtext">Click any photograph to view in full resolution.</p>
+
+                <!-- Masonry Polaroid Gallery -->
+                <div id="galleryGrid" class="gallery-grid"></div>
+
+                <div class="gallery-footer-action margin-top-lg">
+                    <button id="galleryNextBtn" class="glow-btn">A Special Moment ✨</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FULLSCREEN LIGHTBOX FOR GALLERY -->
+        <div id="lightbox" class="lightbox hidden-element" aria-hidden="true" role="dialog">
+            <button id="lightboxCloseBtn" class="lightbox-btn lightbox-close" aria-label="Close Lightbox">✕</button>
+            <button id="lightboxPrevBtn" class="lightbox-btn lightbox-prev" aria-label="Previous Photo">❮</button>
+            <button id="lightboxNextBtn" class="lightbox-btn lightbox-next" aria-label="Next Photo">❯</button>
+            <div class="lightbox-content">
+                <img id="lightboxImg" src="" alt="Memory Fullview">
+                <p id="lightboxCaption" class="lightbox-caption"></p>
+                <div id="lightboxCounter" class="lightbox-counter">1 / 14</div>
+            </div>
+        </div>
+
+        <!-- SCENE 7: SPECIAL 10-SECOND VIDEO -->
+        <section id="scene-video" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <div id="videoIntroText" class="video-intro-wrapper">
+                    <h2 class="scene-heading cinematic-font fade-text">And then... there's you. ❤️</h2>
+                </div>
+
+                <div id="videoPlayerFrame" class="video-player-frame hidden-element">
+                    <video id="specialVideoPlayer" playsinline preload="auto">
+                        <source src="videos/puja-memory.mp4" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 8: PERSONAL BIRTHDAY LETTER -->
+        <section id="scene-letter" class="scene hidden-scene">
+            <div class="scene-content">
+                <div id="letterPaper" class="letter-paper">
+                    <div class="letter-header text-center">
+                        <h2 class="letter-title">Happy Birthday, Puja ❤️</h2>
+                        <p class="letter-subtitle">21 looks beautiful on you.</p>
+                    </div>
+                    <div id="letterContent" class="letter-body">
+                        <!-- Line-by-line typewriter content inserted here -->
+                    </div>
+                    <div id="letterContinueWrapper" class="btn-wrapper text-center hidden-element margin-top-lg">
+                        <button id="letterNextBtn" class="glow-btn">Continue →</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 9: MYSTERIOUS ENDING -->
+        <section id="scene-mysterious" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <div class="mysterious-lines-container">
+                    <p id="mysteriousLine1" class="mysterious-line fade-text">From someone from your past...</p>
+                    <p id="mysteriousLine2" class="mysterious-line fade-text hidden-element">Someone you probably don't want to remember.</p>
+                    <p id="mysteriousLine3" class="mysterious-line fade-text hidden-element">But someone who still wishes you nothing but happiness.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 10: FINAL BIRTHDAY WISH & PHOTO -->
+        <section id="scene-final" class="scene hidden-scene">
+            <div class="scene-content text-center">
+                <div class="final-photo-wrapper">
+                    <div class="final-polaroid polaroid-card">
+                        <div class="polaroid-img-wrapper">
+                            <img id="finalPhotoImg" src="photos/photo 14.png" alt="Puja Shrestha Final Photo">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-wishes">
+                    <h1 class="glow-heading main-birthday-title">Happy 21st Birthday, Puja ❤️</h1>
+                    <div class="wish-sequence">
+                        <p id="wish1" class="wish-line fade-text">Keep smiling.</p>
+                        <p id="wish2" class="wish-line fade-text">Keep being happy.</p>
+                        <p id="wish3" class="wish-line fade-text">Keep shining.</p>
+                        <p id="wish4" class="wish-line fade-text">Some stories may remain incomplete...</p>
+                        <p id="wish5" class="wish-line fade-text">but that doesn't mean they have to be forgotten.</p>
+                        <h2 id="wish6" class="wish-final-line glow-heading fade-text">Happy Birthday. ❤️</h2>
+                    </div>
+                </div>
+
+                <!-- SCENE 11: REPLAY BUTTON -->
+                <div id="replayWrapper" class="replay-wrapper margin-top-lg">
+                    <button id="replayBtn" class="glow-btn replay-btn">
+                        Replay the memories ↻
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
